@@ -154,6 +154,86 @@ export function useTickets() {
     });
   };
 
+  const exportBoard = () => {
+    const boardData = {
+      tickets,
+      exportedAt: new Date().toISOString(),
+      version: '1.0'
+    };
+    
+    const dataStr = JSON.stringify(boardData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `board-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const importBoard = (file: File): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const boardData = JSON.parse(content);
+          
+          // Validate the imported data structure
+          if (!validateBoardData(boardData)) {
+            reject(new Error('Invalid board data format'));
+            return;
+          }
+          
+          // Replace current tickets with imported ones
+          setTickets(boardData.tickets || []);
+          resolve(true);
+        } catch (error) {
+          reject(new Error('Failed to parse JSON file'));
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      
+      reader.readAsText(file);
+    });
+  };
+
+  const validateBoardData = (data: any): boolean => {
+    if (!data || typeof data !== 'object') return false;
+    
+    if (!Array.isArray(data.tickets)) return false;
+    
+    // Validate each ticket has required fields
+    return data.tickets.every((ticket: any) => 
+      ticket &&
+      typeof ticket.id === 'string' &&
+      typeof ticket.title === 'string' &&
+      typeof ticket.description === 'string' &&
+      ['backlog', 'in-progress', 'review', 'done'].includes(ticket.status) &&
+      ['low', 'medium', 'high', 'urgent'].includes(ticket.priority) &&
+      typeof ticket.assignee === 'string' &&
+      Array.isArray(ticket.labels) &&
+      typeof ticket.dueDate === 'string' &&
+      typeof ticket.estimate === 'number' &&
+      typeof ticket.createdAt === 'string' &&
+      typeof ticket.updatedAt === 'string'
+    );
+  };
+
+  const clearBoard = () => {
+    if (window.confirm('Are you sure you want to clear all tickets? This action cannot be undone.')) {
+      setTickets([]);
+      localStorage.removeItem('tickets');
+    }
+  };
+
   return {
     tickets: filteredTickets,
     allTickets: tickets,
@@ -166,5 +246,8 @@ export function useTickets() {
     removeLabel,
     updateFilters,
     clearFilters,
+    exportBoard,
+    importBoard,
+    clearBoard,
   };
 }

@@ -19,7 +19,10 @@ export function Board() {
     deleteTicket, 
     removeLabel,
     updateFilters,
-    clearFilters
+    clearFilters,
+    exportBoard,
+    importBoard,
+    clearBoard
   } = useTickets();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
@@ -102,16 +105,60 @@ export function Board() {
     setDraggedOverColumn(null);
   };
 
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await importBoard(file);
+      alert('Board imported successfully!');
+    } catch (error) {
+      alert(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+    
+    // Reset the input
+    e.target.value = '';
+  };
+
   return (
     <>
       <div className="p-6 min-h-screen bg-gray-50">
-        <SearchAndFilters
-          filters={filters}
-          filterOptions={filterOptions}
-          stats={stats}
-          onFiltersChange={updateFilters}
-          onClearFilters={clearFilters}
-        />
+        <div className="mb-6">
+          <SearchAndFilters
+            filters={filters}
+            filterOptions={filterOptions}
+            stats={stats}
+            onFiltersChange={updateFilters}
+            onClearFilters={clearFilters}
+          />
+          
+          {/* Data Portability Controls */}
+          <div className="mt-4 flex gap-3 justify-end">
+            <button
+              onClick={exportBoard}
+              className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              📤 Export Board
+            </button>
+            
+            <label className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+              📥 Import Board
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </label>
+            
+            <button
+              onClick={clearBoard}
+              className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              🗑️ Clear Board
+            </button>
+          </div>
+        </div>
         
         <div className="flex gap-6">
           {columns.map((column) => (
