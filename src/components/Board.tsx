@@ -4,10 +4,23 @@ import { useState } from 'react';
 import { Ticket, BoardColumn } from '@/types/ticket';
 import { TicketCard } from './TicketCard';
 import { TicketModal } from './TicketModal';
+import { SearchAndFilters } from './SearchAndFilters';
 import { useTickets } from '@/hooks/useTickets';
 
 export function Board() {
-  const { tickets, addTicket, updateTicket, deleteTicket, removeLabel } = useTickets();
+  const { 
+    tickets, 
+    allTickets,
+    filters,
+    stats,
+    filterOptions,
+    addTicket, 
+    updateTicket, 
+    deleteTicket, 
+    removeLabel,
+    updateFilters,
+    clearFilters
+  } = useTickets();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
@@ -91,53 +104,63 @@ export function Board() {
 
   return (
     <>
-      <div className="flex gap-6 p-6 min-h-screen bg-gray-50">
-        {columns.map((column) => (
-          <div key={column.id} className="flex-1">
-            <div 
-              className={`bg-white rounded-lg shadow-sm border-2 transition-colors ${
-                draggedOverColumn === column.id 
-                  ? 'border-blue-400 bg-blue-50' 
-                  : 'border-gray-200'
-              }`}
-              onDragOver={(e) => handleDragOver(e, column.id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, column.status)}
-            >
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      {column.title}
-                    </h2>
-                    <span className="text-sm text-gray-500">
-                      {column.tickets.length} tickets
-                    </span>
+      <div className="p-6 min-h-screen bg-gray-50">
+        <SearchAndFilters
+          filters={filters}
+          filterOptions={filterOptions}
+          stats={stats}
+          onFiltersChange={updateFilters}
+          onClearFilters={clearFilters}
+        />
+        
+        <div className="flex gap-6">
+          {columns.map((column) => (
+            <div key={column.id} className="flex-1">
+              <div 
+                className={`bg-white rounded-lg shadow-sm border-2 transition-colors ${
+                  draggedOverColumn === column.id 
+                    ? 'border-blue-400 bg-blue-50' 
+                    : 'border-gray-200'
+                }`}
+                onDragOver={(e) => handleDragOver(e, column.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, column.status)}
+              >
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-800">
+                        {column.title}
+                      </h2>
+                      <span className="text-sm text-gray-500">
+                        {column.tickets.length} tickets
+                      </span>
+                    </div>
+                    {column.status === 'backlog' && (
+                      <button
+                        onClick={handleNewTicket}
+                        className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        + New Ticket
+                      </button>
+                    )}
                   </div>
-                  {column.status === 'backlog' && (
-                    <button
-                      onClick={handleNewTicket}
-                      className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      + New Ticket
-                    </button>
-                  )}
+                </div>
+                <div className="p-4 space-y-3 min-h-[400px]">
+                  {column.tickets.map((ticket) => (
+                    <TicketCard 
+                      key={ticket.id} 
+                      ticket={ticket} 
+                      onEdit={handleEditTicket}
+                      onDelete={deleteTicket}
+                      onRemoveLabel={removeLabel}
+                    />
+                  ))}
                 </div>
               </div>
-              <div className="p-4 space-y-3 min-h-[400px]">
-                {column.tickets.map((ticket) => (
-                  <TicketCard 
-                    key={ticket.id} 
-                    ticket={ticket} 
-                    onEdit={handleEditTicket}
-                    onDelete={deleteTicket}
-                    onRemoveLabel={removeLabel}
-                  />
-                ))}
-              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <TicketModal
