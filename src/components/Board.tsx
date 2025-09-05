@@ -122,7 +122,7 @@ export function Board() {
 
   return (
     <>
-      <div className="p-6 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 pb-20">
         <div className="mb-6">
           <SearchAndFilters
             filters={filters}
@@ -133,16 +133,16 @@ export function Board() {
           />
           
           {/* Data Portability Controls */}
-          <div className="mt-4 flex gap-3 justify-end">
+          <div className="mt-4 flex flex-wrap gap-2 sm:gap-3 justify-end">
             <button
               onClick={exportBoard}
-              className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
             >
-              📤 Export Board
+              📤 Export
             </button>
             
-            <label className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-              📥 Import Board
+            <label className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors">
+              📥 Import
               <input
                 type="file"
                 accept=".json"
@@ -153,47 +153,48 @@ export function Board() {
             
             <button
               onClick={clearBoard}
-              className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
             >
-              🗑️ Clear Board
+              🗑️ Clear
             </button>
           </div>
         </div>
         
-        <div className="flex gap-6">
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {columns.map((column) => (
-            <div key={column.id} className="flex-1">
+            <div key={column.id} className="flex flex-col">
               <div 
-                className={`bg-white rounded-lg shadow-sm border-2 transition-colors ${
+                className={`bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border-2 transition-all duration-200 flex-1 ${
                   draggedOverColumn === column.id 
-                    ? 'border-blue-400 bg-blue-50' 
-                    : 'border-gray-200'
+                    ? 'border-blue-400 bg-blue-50/70 scale-[1.02]' 
+                    : 'border-gray-200/50 hover:border-gray-300/50'
                 }`}
                 onDragOver={(e) => handleDragOver(e, column.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, column.status)}
               >
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-4 border-b border-gray-200/50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-800">
+                      <h2 className="text-base sm:text-lg font-semibold text-gray-800">
                         {column.title}
                       </h2>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         {column.tickets.length} tickets
                       </span>
                     </div>
                     {column.status === 'backlog' && (
                       <button
                         onClick={handleNewTicket}
-                        className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                       >
-                        + New Ticket
+                        + New
                       </button>
                     )}
                   </div>
                 </div>
-                <div className="p-4 space-y-3 min-h-[400px]">
+                <div className="p-4 space-y-3 min-h-[300px] sm:min-h-[400px]">
                   {column.tickets.map((ticket) => (
                     <TicketCard 
                       key={ticket.id} 

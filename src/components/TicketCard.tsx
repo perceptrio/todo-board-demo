@@ -88,26 +88,26 @@ export function TicketCard({ ticket, onEdit, onDelete, onRemoveLabel }: TicketCa
 
   return (
     <div 
-      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+      className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer group"
       onDoubleClick={handleDoubleClick}
       draggable
       onDragStart={handleDragStart}
     >
       <div className="flex items-start justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+        <h3 className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2 leading-tight">
           {ticket.title}
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(ticket.priority)}`}>
             {ticket.priority}
           </span>
           {onDelete && (
             <button
               onClick={handleDelete}
-              className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-all duration-200 p-1 rounded-full hover:bg-red-50"
               title="Delete ticket"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
@@ -115,7 +115,7 @@ export function TicketCard({ ticket, onEdit, onDelete, onRemoveLabel }: TicketCa
         </div>
       </div>
       
-      <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+      <p className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
         {ticket.description}
       </p>
       
@@ -123,7 +123,7 @@ export function TicketCard({ ticket, onEdit, onDelete, onRemoveLabel }: TicketCa
         {ticket.labels.map((label, index) => (
           <span
             key={index}
-            className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full flex items-center gap-1"
+            className="px-2 py-1 text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full flex items-center gap-1 border border-blue-200/50"
           >
             {label}
             {onRemoveLabel && (
@@ -146,15 +146,14 @@ export function TicketCard({ ticket, onEdit, onDelete, onRemoveLabel }: TicketCa
       
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-xs font-medium text-white shadow-sm">
             {getInitials(ticket.assignee)}
           </div>
-          <span>{ticket.assignee}</span>
+          <span className="truncate max-w-[80px] sm:max-w-none">{ticket.assignee}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span>{ticket.estimate}h</span>
-          <span>•</span>
-          <span className={`px-2 py-1 rounded text-xs font-medium ${getDueDateColor(dueDateStatus)}`}>
+        <div className="flex items-center gap-1 sm:gap-2 text-xs">
+          <span className="bg-gray-100 px-2 py-1 rounded-full">{ticket.estimate}h</span>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDueDateColor(dueDateStatus)}`}>
             {dueDateStatus === 'overdue' && 'Overdue'}
             {dueDateStatus === 'due-today' && 'Due Today'}
             {dueDateStatus === 'due-soon' && 'Due Soon'}
