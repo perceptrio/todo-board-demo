@@ -7,10 +7,11 @@ import { TicketModal } from './TicketModal';
 import { useTickets } from '@/hooks/useTickets';
 
 export function Board() {
-  const { tickets, addTicket, updateTicket, deleteTicket } = useTickets();
+  const { tickets, addTicket, updateTicket, deleteTicket, removeLabel } = useTickets();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
 
   const columns: BoardColumn[] = [
     {
@@ -64,12 +65,45 @@ export function Board() {
     setEditingTicket(null);
   };
 
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDraggedOverColumn(columnId);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDraggedOverColumn(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetStatus: Ticket['status']) => {
+    e.preventDefault();
+    const ticketId = e.dataTransfer.getData('text/plain');
+    
+    // Find the ticket and update its status
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (ticket && ticket.status !== targetStatus) {
+      updateTicket(ticketId, { ...ticket, status: targetStatus });
+    }
+    
+    setDraggedOverColumn(null);
+  };
+
   return (
     <>
       <div className="flex gap-6 p-6 min-h-screen bg-gray-50">
         {columns.map((column) => (
           <div key={column.id} className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div 
+              className={`bg-white rounded-lg shadow-sm border-2 transition-colors ${
+                draggedOverColumn === column.id 
+                  ? 'border-blue-400 bg-blue-50' 
+                  : 'border-gray-200'
+              }`}
+              onDragOver={(e) => handleDragOver(e, column.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, column.status)}
+            >
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
@@ -97,6 +131,7 @@ export function Board() {
                     ticket={ticket} 
                     onEdit={handleEditTicket}
                     onDelete={deleteTicket}
+                    onRemoveLabel={removeLabel}
                   />
                 ))}
               </div>

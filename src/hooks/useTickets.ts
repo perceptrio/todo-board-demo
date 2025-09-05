@@ -51,10 +51,23 @@ export function useTickets() {
     setTickets(prev => prev.filter(ticket => ticket.id !== id));
   };
 
+  const removeLabel = (ticketId: string, labelToRemove: string) => {
+    setTickets(prev => prev.map(ticket => 
+      ticket.id === ticketId 
+        ? { 
+            ...ticket, 
+            labels: ticket.labels.filter(label => label !== labelToRemove),
+            updatedAt: new Date().toISOString()
+          }
+        : ticket
+    ));
+  };
+
   return {
     tickets,
     addTicket,
     updateTicket,
     deleteTicket,
+    removeLabel,
   };
 }
