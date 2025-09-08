@@ -28,6 +28,7 @@ export function Board() {
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
+  const [aiBusy,setAiBusy]=useState(false);
 
   const columns: BoardColumn[] = [
     {
@@ -105,6 +106,16 @@ export function Board() {
     setDraggedOverColumn(null);
   };
 
+  const summarize = async()=>{
+    if(aiBusy) return; setAiBusy(true); try{
+      const r = await fetch('/api/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tickets: allTickets})});
+      const j = await r.json();
+      alert((j && (j.summary||j.error)) || 'nope');
+    }catch(e:any){
+      alert('fail');
+    } finally{setAiBusy(false)}
+  }
+
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -150,6 +161,14 @@ export function Board() {
                 className="hidden"
               />
             </label>
+
+            <button
+              onClick={summarize}
+              disabled={aiBusy}
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors disabled:opacity-50"
+            >
+              {aiBusy? 'Summarizing…' : '🧠 Summarize with AI'}
+            </button>
             
             <button
               onClick={clearBoard}
