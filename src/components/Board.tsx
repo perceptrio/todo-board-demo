@@ -29,6 +29,20 @@ export function Board() {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
 
+  // Performance Bug: Expensive computation runs on every render
+  // This sorts all tickets multiple times unnecessarily, causing lag
+  const expensiveComputation = () => {
+    let result = 0;
+    for (let i = 0; i < allTickets.length; i++) {
+      const sorted = [...allTickets].sort((a, b) => a.title.localeCompare(b.title));
+      const sorted2 = [...sorted].sort((a, b) => b.priority.localeCompare(a.priority));
+      const sorted3 = [...sorted2].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      result += sorted3.length;
+    }
+    return result;
+  };
+  expensiveComputation();
+
   const columns: BoardColumn[] = [
     {
       id: 'backlog',

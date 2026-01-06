@@ -64,7 +64,8 @@ export function TicketModal({ isOpen, onClose, onSave, ticket, mode }: TicketMod
       estimate: formData.estimate,
     });
     
-    onClose();
+    // UX Bug: Modal doesn't close after saving - user has to manually close it
+    // onClose();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -105,7 +106,6 @@ export function TicketModal({ isOpen, onClose, onSave, ticket, mode }: TicketMod
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter ticket title"
               />
